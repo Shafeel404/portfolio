@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:portfolio/providers/theme_provider.dart';
 
 class TransparentInsectAnimation extends ConsumerStatefulWidget {
   final int insectCount;
@@ -83,45 +84,6 @@ class _TransparentInsectAnimationState
     });
   }
 
-  // void _handleSecondaryTapDown(TapDownDetails details, Size size) {
-  //   final clickX = details.localPosition.dx / size.width;
-  //   final clickY = details.localPosition.dy / size.height;
-  //
-  //   setState(() {
-  //     // Find the closest insect
-  //     Insect? closestInsect;
-  //     double closestDistance = double.infinity;
-  //
-  //     for (final insect in _insects.where((i) => i.isAlive)) {
-  //       final distance = sqrt(
-  //           pow(insect.x - clickX, 2) + pow(insect.y - clickY, 2));
-  //       if (distance < closestDistance && distance < insect.size / 100) {
-  //         closestDistance = distance;
-  //         closestInsect = insect;
-  //       }
-  //     }
-  //
-  //     if (closestInsect != null) {
-  //       // Create 1-3 new insects near the clicked one
-  //       final count = 1 + _random.nextInt(3);
-  //       for (int i = 0; i < count; i++) {
-  //         _insects.add(Insect(
-  //           x: (closestInsect.x + (_random.nextDouble() - 0.5) * 0.1).clamp(
-  //               0.0, 1.0),
-  //           y: (closestInsect.y + (_random.nextDouble() - 0.5) * 0.1).clamp(
-  //               0.0, 1.0),
-  //           direction: closestInsect.direction +
-  //               (_random.nextDouble() - 0.5) * pi / 2,
-  //           speed: closestInsect.speed * (0.8 + _random.nextDouble() * 0.4),
-  //           size: closestInsect.size * (0.7 + _random.nextDouble() * 0.6),
-  //           type: closestInsect.type,
-  //           isAlive: true,
-  //         ));
-  //       }
-  //     }
-  //   });
-  // }
-
   @override
   void dispose() {
     _controller.dispose();
@@ -130,6 +92,47 @@ class _TransparentInsectAnimationState
 
   @override
   Widget build(BuildContext context) {
+    if (_insects.isEmpty && _controller.isAnimating) {
+      _controller.stop();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            title: const Text('Congratulations!', textAlign: TextAlign.center),
+            content: const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.celebration, size: 60, color: Colors.amber),
+                SizedBox(height: 16),
+                Text('You eliminated all the bugs!', textAlign: TextAlign.center),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    _insects = List.generate(widget.insectCount, (_) => _createInsect());
+                    _controller.repeat();
+                  });
+                },
+                child: const Text('Bring back bugs'),
+              ),
+              TextButton(
+                onPressed: () {
+                  ref.read(themeProvider.notifier).state=true;
+                },
+                child: const Text('Go dark mode'),
+              ),
+            ],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+        );
+      });
+    }
     return LayoutBuilder(
       builder: (context, constraints) {
         return Stack(
@@ -139,10 +142,6 @@ class _TransparentInsectAnimationState
               child: GestureDetector(
                 onTapDown: (details) =>
                     _handleTapDown(details, constraints.biggest),
-                // onSecondaryTapDown: (details) {
-                //   // Prevent default behavior
-                //   _handleSecondaryTapDown(details, constraints.biggest);
-                // },
                 behavior: HitTestBehavior.opaque,
                 child: CustomPaint(
                   painter: InsectPainter(
@@ -188,7 +187,7 @@ class _TransparentInsectAnimationState
                       ),
                       const SizedBox(width: 8),
                       const Text(
-                        'Click to kill',
+                        'Smash them',
                         style: TextStyle(color: Colors.white),
                       ),
                     ],

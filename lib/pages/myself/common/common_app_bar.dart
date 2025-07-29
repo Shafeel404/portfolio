@@ -39,6 +39,10 @@ class CommonAppBar extends ConsumerWidget implements PreferredSizeWidget {
                       ),
                       actions: [
                         TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text('OK'),
+                        ),
+                        TextButton(
                           onPressed: () => {
                             ref.read(themeProvider.notifier).state = false,
                             Navigator.of(context).pop(),
@@ -47,10 +51,6 @@ class CommonAppBar extends ConsumerWidget implements PreferredSizeWidget {
                             'Force Light mode',
                             style: TextStyle(color: Colors.red),
                           ),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: const Text('OK'),
                         ),
                       ],
                       actionsAlignment: MainAxisAlignment.spaceBetween,
