@@ -121,7 +121,7 @@ class AboutMe extends ConsumerWidget {
           const Positioned.fill(
             child: IgnorePointer(
               child: TransparentInsectAnimation(
-                insectCount: 8, // Adjust number of insects
+                insectCount: 8,
               ),
             ),
           ),

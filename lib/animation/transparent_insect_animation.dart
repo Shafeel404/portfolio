@@ -1,21 +1,19 @@
 import 'dart:math';
-import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
-import 'package:portfolio/animation/insect_animation.dart';
 
-class TransparentInsectAnimation extends StatefulWidget {
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+class TransparentInsectAnimation extends ConsumerStatefulWidget {
   final int insectCount;
 
-  const TransparentInsectAnimation({
-    super.key,
-    this.insectCount = 5,
-  });
+  const TransparentInsectAnimation({super.key, this.insectCount = 5});
 
   @override
-  State<TransparentInsectAnimation> createState() => _TransparentInsectAnimationState();
+  ConsumerState<TransparentInsectAnimation> createState() =>
+      _TransparentInsectAnimationState();
 }
 
-class _TransparentInsectAnimationState extends State<TransparentInsectAnimation>
+class _TransparentInsectAnimationState extends ConsumerState<TransparentInsectAnimation>
     with SingleTickerProviderStateMixin {
   final Random _random = Random();
   late List<Insect> _insects;
@@ -25,12 +23,10 @@ class _TransparentInsectAnimationState extends State<TransparentInsectAnimation>
   void initState() {
     super.initState();
     _insects = List.generate(widget.insectCount, (_) => _createInsect());
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(days: 1),
-    )
-      ..addListener(() => setState(() {}))
-      ..repeat();
+    _controller =
+        AnimationController(vsync: this, duration: const Duration(days: 1))
+          ..addListener(() => setState(() {}))
+          ..repeat();
   }
 
   Insect _createInsect() {
@@ -52,6 +48,7 @@ class _TransparentInsectAnimationState extends State<TransparentInsectAnimation>
     setState(() {
       // Find insects in exact click position
       final killedIndices = <int>[];
+      final hitAreaMultiplier = 1.3;
 
       for (int i = 0; i < _insects.length; i++) {
         final insect = _insects[i];
@@ -59,12 +56,11 @@ class _TransparentInsectAnimationState extends State<TransparentInsectAnimation>
 
         // Calculate distance from click to insect center
         final distance = sqrt(
-            pow(insect.x - clickX, 2) +
-                pow(insect.y - clickY, 2)
+          pow(insect.x - clickX, 2) + pow(insect.y - clickY, 2),
         );
 
         // Only kill if click is within insect body (considering size)
-        final insectRadius = insect.size / size.width / 2;
+        final insectRadius = (insect.size / size.width / 2) * hitAreaMultiplier;
         if (distance <= insectRadius) {
           insect.isAlive = false;
           killedIndices.add(i);
@@ -138,7 +134,8 @@ class _TransparentInsectAnimationState extends State<TransparentInsectAnimation>
         return MouseRegion(
           onHover: (event) {},
           child: GestureDetector(
-            onTapDown: (details) => _handleTapDown(details, constraints.biggest),
+            onTapDown: (details) =>
+                _handleTapDown(details, constraints.biggest),
             // onSecondaryTapDown: (details) {
             //   // Prevent default behavior
             //   _handleSecondaryTapDown(details, constraints.biggest);
@@ -285,13 +282,13 @@ class InsectPainter extends CustomPainter {
 
     // Draw X mark
     canvas.drawLine(
-      Offset(x - insect.size/2, y - insect.size/2),
-      Offset(x + insect.size/2, y + insect.size/2),
+      Offset(x - insect.size / 2, y - insect.size / 2),
+      Offset(x + insect.size / 2, y + insect.size / 2),
       paint,
     );
     canvas.drawLine(
-      Offset(x + insect.size/2, y - insect.size/2),
-      Offset(x - insect.size/2, y + insect.size/2),
+      Offset(x + insect.size / 2, y - insect.size / 2),
+      Offset(x - insect.size / 2, y + insect.size / 2),
       paint,
     );
   }
