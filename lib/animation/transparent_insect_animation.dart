@@ -13,7 +13,8 @@ class TransparentInsectAnimation extends ConsumerStatefulWidget {
       _TransparentInsectAnimationState();
 }
 
-class _TransparentInsectAnimationState extends ConsumerState<TransparentInsectAnimation>
+class _TransparentInsectAnimationState
+    extends ConsumerState<TransparentInsectAnimation>
     with SingleTickerProviderStateMixin {
   final Random _random = Random();
   late List<Insect> _insects;
@@ -131,26 +132,71 @@ class _TransparentInsectAnimationState extends ConsumerState<TransparentInsectAn
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        return MouseRegion(
-          onHover: (event) {},
-          child: GestureDetector(
-            onTapDown: (details) =>
-                _handleTapDown(details, constraints.biggest),
-            // onSecondaryTapDown: (details) {
-            //   // Prevent default behavior
-            //   _handleSecondaryTapDown(details, constraints.biggest);
-            // },
-            behavior: HitTestBehavior.opaque,
-            child: CustomPaint(
-              painter: InsectPainter(
-                insects: _insects,
-                random: _random,
-                time: DateTime.now().millisecondsSinceEpoch,
+        return Stack(
+          children: [
+            MouseRegion(
+              onHover: (event) {},
+              child: GestureDetector(
+                onTapDown: (details) =>
+                    _handleTapDown(details, constraints.biggest),
+                // onSecondaryTapDown: (details) {
+                //   // Prevent default behavior
+                //   _handleSecondaryTapDown(details, constraints.biggest);
+                // },
+                behavior: HitTestBehavior.opaque,
+                child: CustomPaint(
+                  painter: InsectPainter(
+                    insects: _insects,
+                    random: _random,
+                    time: DateTime.now().millisecondsSinceEpoch,
+                  ),
+                  willChange: true,
+                  size: constraints.biggest,
+                ),
               ),
-              willChange: true,
-              size: constraints.biggest,
             ),
-          ),
+            Positioned(
+              bottom: 20,
+              right: 20,
+              child: AnimatedOpacity(
+                opacity: _insects.isNotEmpty ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 300),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 10,
+                        spreadRadius: 2,
+                      )
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.warning_amber_rounded, color: Colors.white),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${_insects.length} bugs found!',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Click to kill',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         );
       },
     );
