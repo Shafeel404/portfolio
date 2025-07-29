@@ -1,9 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:portfolio/animation/transparent_insect_animation.dart';
-import 'package:portfolio/pages/bug_overlay/bug_overlay.dart';
 import 'package:portfolio/pages/myself/common/common_app_bar.dart';
 import 'package:portfolio/pages/myself/common/common_footer.dart';
-import 'package:flutter/material.dart';
 import 'package:portfolio/providers/theme_provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
