@@ -14,6 +14,7 @@ dependencies:
   flutter_riverpod: ^2.5.1
   url_launcher: ^6.2.5
   font_awesome_flutter: ^10.7.0
+  flame: ^1.10.0
 
 
 dev_dependencies:
@@ -23,3 +24,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/bug.png

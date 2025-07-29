@@ -2,15 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:portfolio/addl/HeaderLink.dart';
+import 'package:portfolio/providers/theme_provider.dart';
 
 class CommonAppBar extends ConsumerWidget implements PreferredSizeWidget {
   const CommonAppBar({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = ref.watch(themeProvider);
+    final theme = Theme.of(context);
     return AppBar(
       automaticallyImplyLeading: false, // removes default back arrow
-      backgroundColor: Color(0xFF1B1C1B),
+      backgroundColor: isDark
+          ? Color(0xFF1B1C1B)
+          : theme.colorScheme.surfaceContainerHighest,
       actions: [
         IconButton(
           icon: AnimatedSwitcher(
@@ -18,24 +23,39 @@ class CommonAppBar extends ConsumerWidget implements PreferredSizeWidget {
             transitionBuilder: (child, animation) {
               return ScaleTransition(scale: animation, child: child);
             },
-            child: const Icon(Icons.wb_sunny, key: ValueKey('sunny')),
+            child: isDark
+                ? const Icon(Icons.wb_sunny, key: ValueKey('sunny'))
+                : const Icon(Icons.brightness_2, key: ValueKey('moon')),
           ),
           onPressed: () {
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text('Light mode not available'),
-                content: const Text(
-                  'Light attracts bugs. So only dark mode available now.',
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('OK'),
-                  ),
-                ],
-              ),
-            );
+            !isDark
+                ? ref.read(themeProvider.notifier).state = true
+                : showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Bug Alert 🚨'),
+                      content: const Text(
+                        'Light attracts bugs. So only dark mode available now.',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => {
+                            ref.read(themeProvider.notifier).state = false,
+                            Navigator.of(context).pop(),
+                          },
+                          child: const Text(
+                            'Force Light mode',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text('OK'),
+                        ),
+                      ],
+                      actionsAlignment: MainAxisAlignment.spaceBetween,
+                    ),
+                  );
           },
         ),
       ],
@@ -66,12 +86,17 @@ class CommonAppBar extends ConsumerWidget implements PreferredSizeWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 HeaderLink(
+                  color: Theme.of(context).colorScheme.onSurface,
                   title: 'About',
                   onTap: () {
                     context.goNamed('about_me');
                   },
                 ),
-                HeaderLink(title: 'CV', onTap: () {}),
+                HeaderLink(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  title: 'CV',
+                  onTap: () {},
+                ),
               ],
             ),
           ),

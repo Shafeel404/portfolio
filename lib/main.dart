@@ -1,22 +1,27 @@
 import 'package:portfolio/configs/router_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:portfolio/providers/theme_provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 void main() {
   runApp(ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = ref.watch(themeProvider);
     final routerConfig = RouterConfigs().router;
     return ProviderScope(
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
-        theme: ThemeData.dark(),
+        theme:
+        isDark?
+        ThemeData.dark():
+        ThemeData.light(),
         routerConfig: routerConfig,
         builder:
             (context, child) => ResponsiveBreakpoints.builder(
